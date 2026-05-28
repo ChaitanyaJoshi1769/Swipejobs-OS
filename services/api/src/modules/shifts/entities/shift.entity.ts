@@ -1,14 +1,8 @@
-import {
-  Entity,
-  PrimaryColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  Index,
-} from 'typeorm';
+import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
 
 @Entity('shifts')
-@Index(['organization_id', 'shift_date'])
+@Index(['organization_id', 'job_id'])
+@Index(['organization_id', 'status'])
 export class Shift {
   @PrimaryColumn('uuid')
   id: string;
@@ -16,32 +10,26 @@ export class Shift {
   @Column('uuid')
   organization_id: string;
 
-  @Column('uuid', { nullable: true })
+  @Column('uuid')
   job_id: string;
 
-  @Column('date')
-  shift_date: Date;
+  @Column('timestamp')
+  start_time: Date;
 
-  @Column('time')
-  shift_time_start: string;
-
-  @Column('time')
-  shift_time_end: string;
-
-  @Column('integer', { nullable: true })
-  break_duration_minutes: number;
-
-  @Column('jsonb', { default: {} })
-  locations: Record<string, any>;
-
-  @Column('integer')
-  required_candidates: number;
+  @Column('timestamp')
+  end_time: Date;
 
   @Column('varchar', { default: 'open' })
-  status: string;
+  status: string; // open, assigned, completed, cancelled
 
-  @Column('integer', { default: 0 })
-  filled_count: number;
+  @Column('int', { default: 1 })
+  positions_available: number;
+
+  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  pay_rate?: number;
+
+  @Column('text', { nullable: true })
+  requirements?: string;
 
   @CreateDateColumn()
   created_at: Date;
