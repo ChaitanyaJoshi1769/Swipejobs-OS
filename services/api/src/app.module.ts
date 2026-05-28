@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 
 // Controllers
 import { AppController } from './app.controller';
@@ -11,6 +12,16 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthService } from './modules/auth/auth.service';
 import { JwtStrategy } from './modules/auth/strategies/jwt.strategy';
+
+// Guards
+import { TenantGuard } from './modules/auth/guards/tenant.guard';
+import { RolesGuard } from './modules/auth/guards/roles.guard';
+
+// Interceptors
+import { TenantIsolationInterceptor } from './interceptors/tenant-isolation.interceptor';
+
+// Middleware
+import { TenantContextMiddleware } from './middleware/tenant-context.middleware';
 
 // Modules
 import { AuthModule } from './modules/auth/auth.module';
@@ -86,6 +97,21 @@ import jwtConfig from './config/jwt.config';
     ComplianceModule,
   ],
   controllers: [AppController],
-  providers: [AppService, JwtStrategy],
+  providers: [
+    AppService,
+    JwtStrategy,
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: TenantIsolationInterceptor,
+    },
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(TenantContextMiddleware).forRoutes('*');
+  }
+}
