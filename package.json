@@ -1,0 +1,41 @@
+{
+  "name": "swipejobs-os",
+  "version": "0.0.1",
+  "description": "AI-native workforce marketplace operating system",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "services/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "test:cov": "turbo run test:cov",
+    "lint": "turbo run lint",
+    "format": "turbo run format",
+    "type-check": "turbo run type-check",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "db:migrate": "cd services/api && npm run db:migrate",
+    "db:seed": "cd services/api && npm run db:seed",
+    "infra:plan": "cd infrastructure && terraform plan",
+    "infra:apply": "cd infrastructure && terraform apply",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "seed-db": "node scripts/seed-database.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "turbo": "^1.10.0",
+    "typescript": "^5.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
