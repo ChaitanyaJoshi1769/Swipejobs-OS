@@ -71,4 +71,93 @@ export class JobsService {
       .limit(limit)
       .getMany();
   }
+
+  async findByLocation(
+    organizationId: string,
+    location: string,
+    radiusKm = 50,
+  ): Promise<Job[]> {
+    // Simple location-based search (can be enhanced with PostGIS)
+    return this.jobsRepository.find({
+      where: {
+        organization_id: organizationId,
+        status: 'open',
+      },
+    });
+  }
+
+  async findByJobType(
+    organizationId: string,
+    jobType: string,
+  ): Promise<Job[]> {
+    return this.jobsRepository.find({
+      where: {
+        organization_id: organizationId,
+        job_type: jobType,
+        status: 'open',
+      },
+      order: { posting_date: 'DESC' },
+    });
+  }
+
+  async findBySkills(
+    organizationId: string,
+    skills: string[],
+  ): Promise<Job[]> {
+    return this.jobsRepository
+      .createQueryBuilder('job')
+      .where('job.organization_id = :organizationId', { organizationId })
+      .andWhere('job.status = :status', { status: 'open' })
+      .andWhere(
+        'job.required_skills ? ANY(:skills)',
+        { skills },
+      )
+      .orderBy('job.posting_date', 'DESC')
+      .getMany();
+  }
+
+  async findByExperience(
+    organizationId: string,
+    minYears: number,
+    maxYears?: number,
+  ): Promise<Job[]> {
+    let query = this.jobsRepository
+      .createQueryBuilder('job')
+      .where('job.organization_id = :organizationId', { organizationId })
+      .andWhere('job.status = :status', { status: 'open' })
+      .andWhere('job.years_experience_max >= :minYears', { minYears });
+
+    if (maxYears) {
+      query = query.andWhere('job.years_experience_min <= :maxYears', {
+        maxYears,
+      });
+    }
+
+    return query.orderBy('job.posting_date', 'DESC').getMany();
+  }
+
+  async getJobStats(organizationId: string): Promise<{
+    total: number;
+    open: number;
+    closed: number;
+    filled: number;
+  }> {
+    const total = await this.jobsRepository.count({
+      where: { organization_id: organizationId },
+    });
+
+    const open = await this.jobsRepository.count({
+      where: { organization_id: organizationId, status: 'open' },
+    });
+
+    const closed = await this.jobsRepository.count({
+      where: { organization_id: organizationId, status: 'closed' },
+    });
+
+    const filled = await this.jobsRepository.count({
+      where: { organization_id: organizationId, status: 'filled' },
+    });
+
+    return { total, open, closed, filled };
+  }
 }

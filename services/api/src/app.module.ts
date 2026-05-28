@@ -30,6 +30,7 @@ import { OrganizationsModule } from './modules/organizations/organizations.modul
 import { JobsModule } from './modules/jobs/jobs.module';
 import { CandidatesModule } from './modules/candidates/candidates.module';
 import { ApplicationsModule } from './modules/applications/applications.module';
+import { MatchingModule } from './modules/matching/matching.module';
 import { ShiftsModule } from './modules/shifts/shifts.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
@@ -91,6 +92,7 @@ import jwtConfig from './config/jwt.config';
     JobsModule,
     CandidatesModule,
     ApplicationsModule,
+    MatchingModule,
     ShiftsModule,
     PaymentsModule,
     NotificationsModule,

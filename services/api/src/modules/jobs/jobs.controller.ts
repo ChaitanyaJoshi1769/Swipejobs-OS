@@ -73,4 +73,52 @@ export class JobsController {
     await this.jobsService.delete(id);
     return { message: 'Job deleted successfully' };
   }
+
+  @Get('discover/by-location')
+  async findByLocation(
+    @Query('org_id') orgId: string,
+    @Query('location') location: string,
+    @Query('radius') radius?: number,
+  ) {
+    if (!orgId || !location) return [];
+    return this.jobsService.findByLocation(orgId, location, radius);
+  }
+
+  @Get('discover/by-job-type')
+  async findByJobType(
+    @Query('org_id') orgId: string,
+    @Query('job_type') jobType: string,
+  ) {
+    if (!orgId || !jobType) return [];
+    return this.jobsService.findByJobType(orgId, jobType);
+  }
+
+  @Get('discover/by-skills')
+  async findBySkills(
+    @Query('org_id') orgId: string,
+    @Query('skills') skills: string,
+  ) {
+    if (!orgId || !skills) return [];
+    const skillArray = skills.split(',').map((s) => s.trim());
+    return this.jobsService.findBySkills(orgId, skillArray);
+  }
+
+  @Get('discover/by-experience')
+  async findByExperience(
+    @Query('org_id') orgId: string,
+    @Query('min_years') minYears: string,
+    @Query('max_years') maxYears?: string,
+  ) {
+    if (!orgId || !minYears) return [];
+    return this.jobsService.findByExperience(
+      orgId,
+      parseInt(minYears),
+      maxYears ? parseInt(maxYears) : undefined,
+    );
+  }
+
+  @Get('stats/:orgId')
+  async getStats(@Param('orgId') orgId: string) {
+    return this.jobsService.getJobStats(orgId);
+  }
 }
